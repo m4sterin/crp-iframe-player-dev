@@ -60,6 +60,7 @@ window.addEventListener("message", function (e) {
 	}
 
 	//Pega varias informações pela pagina rss.
+	console.log('series_rss', series_rss);
 	$.ajax({
 		async: true,
 		type: "GET",
@@ -161,6 +162,7 @@ window.addEventListener("message", function (e) {
 
 				if(needs_proxy == true){
 					final_url = proxy + url;
+					console.log('setFileSize', final_url);
 				}else{
 					final_url = url;
 				}
