@@ -156,13 +156,13 @@ window.addEventListener("message", function (e) {
 			
 			//function que pega o tamanho de um arquivo pela url
 			function setFileSize(url, element_id, needs_proxy) {
-				var proxy = "https://cors-anywhere.herokuapp.com/";
+				var proxy = "https://crp-proxy.herokuapp.com/";
 				var fileSize = "";
 				var http = (window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP"));
 
 				if(needs_proxy == true){
 					final_url = proxy + url;
-					console.log('setFileSize', final_url);
+					console.log('setFileSize proxy', final_url);
 				}else{
 					final_url = url;
 				}
@@ -381,6 +381,7 @@ window.addEventListener("message", function (e) {
 			});
 			//Mostra uma tela de erro caso a legenda pedida não exista.
 			jwplayer().on('error', function (e) {
+				console.log(e)
 				if (e.code == 232011) {
 					jwplayer().load({
 						file: "https://i.imgur.com/OufoM33.mp4"
