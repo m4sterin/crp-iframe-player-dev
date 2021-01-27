@@ -1,6 +1,5 @@
 window.addEventListener("message", function (e) {
-
-	console.log(e);
+	console.log('aaa')
 	//console.log(e.currentTarget.document.referrer);
 
 	var video_config_media = JSON.parse(e.data.video_config_media);
@@ -19,20 +18,21 @@ window.addEventListener("message", function (e) {
 	var video_dash_playlist_url_old = "";
 	var video_dash_playlist_url = "";
 
-	if (user_lang == "enUS") {
+	console.log(e)
+	console.log(series_url);
+	if (user_lang == "enUS")
 		var series_rss = "https://www.crunchyroll.com/" + series_url.split("/")[3] + ".rss";
-	} else {
+	else
 		var series_rss = "https://www.crunchyroll.com/" + series_url.split("/")[4] + ".rss";
-	}
+
 	//console.log(video_config_media);
 
 	for (var i = 0; i < video_config_media['streams'].length; i++) {
-		if (video_config_media['streams'][i].format == 'trailer_hls' && video_config_media['streams'][i].hardsub_lang == user_lang) {
+		if (video_config_media['streams'][i].format == 'trailer_hls' && video_config_media['streams'][i].hardsub_lang == user_lang)
 			if (rows_number <= 4) {
 				video_m3u8_array.push(video_config_media['streams'][i].url.replace("clipTo/120000/", "clipTo/" + video_config_media['metadata']['duration'] + "/").replace(video_config_media['streams'][i].url.split("/")[2], "dl.v.vrv.co"));
 				rows_number++;
 			}
-		}
 		if (video_config_media['streams'][i].format == 'adaptive_hls' && video_config_media['streams'][i].hardsub_lang == user_lang) {
 			video_stream_url = video_config_media['streams'][i].url.replace("pl.crunchyroll.com", "dl.v.vrv.co");
 			break;
@@ -53,6 +53,7 @@ window.addEventListener("message", function (e) {
 		'\n' + video_m3u8_array[4];
 
 	if (video_stream_url == "") {
+		console.log(video_m3u8);
 		var blob = new Blob([video_m3u8], {
 			type: "text/plain; charset=utf-8"
 		});
@@ -71,6 +72,8 @@ window.addEventListener("message", function (e) {
 		complete: function (response) {
 
 			//Pega o titulo da serie
+			console.log(crproxy + series_rss);
+			console.log(response)
 			series_title = $(response.responseXML).find("image").find("title").text();
 
 			//Pega o numero e titulo do episodio
@@ -133,51 +136,51 @@ window.addEventListener("message", function (e) {
 				"displayPlaybackLabel": true,
 				"primary": "html5"
 			});
-			
+
 			//Variaveis para o botao de baixar.
 			var button_iconPath = "assets/icon/download_icon.svg";
 			var button_tooltipText = "Baixar Vídeo";
 			var buttonId = "download-video-button";
-			
+
 			//function que pega algo dentro dentro do html.
 			function pegaString(str, first_character, last_character) {
-				if(str.match(first_character + "(.*)" + last_character) == null){
+				if (str.match(first_character + "(.*)" + last_character) == null) {
 					return null;
-				}else{
-				    new_str = str.match(first_character + "(.*)" + last_character)[1].trim()
-				    return(new_str)
-			    }
+				} else {
+					new_str = str.match(first_character + "(.*)" + last_character)[1].trim()
+					return (new_str)
+				}
 			}
-			
+
 			//function que decodifica caracteres html de uma string
-			function htmlDecode(input){
-			  var e = document.createElement('textarea');
-			  e.innerHTML = input;
-			  // handle case of empty input
-			  return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
+			function htmlDecode(input) {
+				var e = document.createElement('textarea');
+				e.innerHTML = input;
+				// handle case of empty input
+				return e.childNodes.length === 0 ? "" : e.childNodes[0].nodeValue;
 			}
-			
+
 			//function que pega o tamanho de um arquivo pela url
 			function setFileSize(url, element_id, needs_proxy) {
 				var fileSize = "";
 				var http = (window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP"));
 
-				if(needs_proxy == true){
+				if (needs_proxy == true) {
 					final_url = crproxy + url;
 					console.log('setFileSize proxy', final_url);
 				} else {
 					final_url = url;
 				}
 
-				http.onreadystatechange = function() {
-					if (http.readyState == 4 && http.status == 200) { 
+				http.onreadystatechange = function () {
+					if (http.readyState == 4 && http.status == 200) {
 						//Pega o tamanho em bytes do arquivo de video
 						fileSize = http.getResponseHeader('content-length');
 
 						//Se o fileSize for igual a null é porque precisa de proxy pra pegar o header
-						if(!fileSize && !needs_proxy) {
+						if (!fileSize && !needs_proxy) {
 							setFileSize(url, element_id, true);
-						}else{
+						} else {
 							var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
 							if (fileSize == 0) return 'n/a';
 							var i = parseInt(Math.floor(Math.log(fileSize) / Math.log(1024)));
@@ -191,12 +194,12 @@ window.addEventListener("message", function (e) {
 				http.open("HEAD", final_url, true);
 				http.send(null);
 			}
-			
+
 			//funcion ao clicar no botao de fechar o menu de download
-			document.querySelectorAll("button.close-modal")[0].onclick = function(){
+			document.querySelectorAll("button.close-modal")[0].onclick = function () {
 				document.querySelectorAll(".modal")[0].style.visibility = "hidden";
 			};
-			
+
 			//function ao clicar no botao de baixar
 			function download_ButtonClickAction() {
 				//Se estiver no mobile, muda um pouco o design do menu
@@ -204,27 +207,27 @@ window.addEventListener("message", function (e) {
 					document.querySelectorAll(".modal")[0].style.height = "170px";
 					document.querySelectorAll(".modal")[0].style.overflow = "auto";
 				}
-				
+
 				//Mostra o menu de download
 				document.querySelectorAll(".modal")[0].style.visibility = "visible";
-				
+
 				//Pega a url da playlist atual
 				player_current_playlist = jwplayer().getPlaylist()[0].file;
-				
+
 				//console.log("Playlist Atual:" + player_current_playlist);
-				
+
 				//Verifica se o ep é so pra usuarios premium
-				if(jwplayer().getPlaylist()[0].file.indexOf('blob:') !== -1) {
+				if (player_current_playlist.indexOf('blob:') !== -1) {
 					is_ep_premium_only = true;
-				}else{
+				} else {
 					is_ep_premium_only = false;
 				}
-				
+
 				//console.log("is_ep_premium_only: " + is_ep_premium_only);
-				
+
 				//Se o episodio não for apenas para premium pega as urls de um jeito mais facil
-				if(is_ep_premium_only == false) {
-					video_dash_playlist_url_old = player_current_playlist.replace("master.m3u8","manifest.mpd").replace(player_current_playlist.split("/")[2], "dl.v.vrv.co").replace("evs1","evs");
+				if (is_ep_premium_only == false) {
+					video_dash_playlist_url_old = player_current_playlist.replace("master.m3u8", "manifest.mpd").replace(player_current_playlist.split("/")[2], "dl.v.vrv.co").replace("evs1", "evs");
 					video_dash_playlist_url = player_current_playlist.replace(player_current_playlist.split("/")[2], "v.vrv.co").replace("evs1", "evs");
 
 					//console.log("Dash Playlist Old: " + video_dash_playlist_url_old);
@@ -234,7 +237,7 @@ window.addEventListener("message", function (e) {
 						async: true,
 						type: "GET",
 						url: video_dash_playlist_url_old,
-						success: (result,status,xhr) => {
+						success: (result, status, xhr) => {
 							var params_download_link = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
 							var video_1080p_code = video_dash_playlist_url.split(",")[2];
 							var video_720p_code = video_dash_playlist_url.split(",")[1];
@@ -247,7 +250,7 @@ window.addEventListener("message", function (e) {
 							var video_480p_mp4_url = video_dash_playlist_url.split("_,")[0] + "_" + video_480p_code + params_download_link;
 							var video_360p_mp4_url = video_dash_playlist_url.split("_,")[0] + "_" + video_360p_code + params_download_link;
 							var video_240p_mp4_url = video_dash_playlist_url.split("_,")[0] + "_" + video_240p_code + params_download_link;
-							
+
 							document.getElementById("1080p_down_url").href = video_1080p_mp4_url;
 							setFileSize(video_1080p_mp4_url, "1080p_down_size");
 							document.getElementById("720p_down_url").href = video_720p_mp4_url;
@@ -258,131 +261,46 @@ window.addEventListener("message", function (e) {
 							setFileSize(video_360p_mp4_url, "360p_down_size");
 							document.getElementById("240p_down_url").href = video_240p_mp4_url;
 							setFileSize(video_240p_mp4_url, "240p_down_size");
-							
-							//console.log("1080p_mp4: " + video_1080p_mp4_url);
-							//console.log("720p_mp4: " + video_720p_mp4_url);
-							//console.log("480p_mp4: " + video_480p_mp4_url);
-							//console.log("360p_mp4: " + video_360p_mp4_url);
-							//console.log("240p_mp4: " + video_240p_mp4_url);
 						}
 					});
 				}
-				
+
 				//Se o episodio for apenas para usuarios premium
-				if(is_ep_premium_only == true) {
-					console.log('video_m3u8_array', video_m3u8_array);
-					var video_1080p_dash_playlist_url_no_clipe = video_m3u8_array[1].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
-					var video_1080p_dash_playlist_url = video_1080p_dash_playlist_url_no_clipe.replace(video_1080p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_1080p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
-					var req1080p = (result,status,xhr) => {
-						var params_download_link_1080p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-						console.log('xhr', xhr.responseText);
-						console.log('params', params_download_link_1080p);
-						var video_1080p_mp4_url_old = video_1080p_dash_playlist_url.split("_,")[0] + "_" + video_1080p_dash_playlist_url.split(",")[1] + params_download_link_1080p;
-						var video_1080p_mp4_url = video_1080p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
-							
-						document.getElementById("1080p_down_url").href = video_1080p_mp4_url;
-						setFileSize(video_1080p_mp4_url, "1080p_down_size");
-							
-						console.log("1080p_mp4: " + video_1080p_mp4_url);
-					};
-					
-					$.ajax({
-						async: true,
-						type: "GET",
-						url: video_1080p_dash_playlist_url,
-						success: req1080p,
-						error: req1080p
-					});
-					
-					var video_720p_dash_playlist_url_no_clipe = video_m3u8_array[0].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
-					var video_720p_dash_playlist_url = video_720p_dash_playlist_url_no_clipe.replace(video_720p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_720p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
-					var req720p = (result,status,xhr) => {
-						var params_download_link_720p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-						var video_720p_mp4_url_old = video_720p_dash_playlist_url.split("_,")[0] + "_" + video_720p_dash_playlist_url.split(",")[1] + params_download_link_720p;
-						var video_720p_mp4_url = video_720p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
-							
-						document.getElementById("720p_down_url").href = video_720p_mp4_url;
-						setFileSize(video_720p_mp4_url, "720p_down_size");
-							
-						console.log("720p_mp4: " + video_720p_mp4_url);
-					};
-					
-					$.ajax({
-						async: true,
-						type: "GET",
-						url: video_720p_dash_playlist_url,
-						success: req720p,
-						error: req720p
-					});
-					
-					var video_480p_dash_playlist_url_no_clipe = video_m3u8_array[2].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
-					var video_480p_dash_playlist_url = video_480p_dash_playlist_url_no_clipe.replace(video_480p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_480p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
-					var req480p = (result,status,xhr) => {
-						var params_download_link_480p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-						var video_480p_mp4_url_old = video_480p_dash_playlist_url.split("_,")[0] + "_" + video_480p_dash_playlist_url.split(",")[1] + params_download_link_480p;
-						var video_480p_mp4_url = video_480p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
-							
-						document.getElementById("480p_down_url").href = video_480p_mp4_url;
-						setFileSize(video_480p_mp4_url, "480p_down_size");
-							
-						console.log("480p_mp4: " + video_480p_mp4_url);
+				if (is_ep_premium_only == true) {
+					const r = {
+						0: '720p',
+						1: '1080p',
+						2: '480p',
+						3: '360p',
+						4: '240p'
 					}
-					
-					$.ajax({
-						async: true,
-						type: "GET",
-						url: video_480p_dash_playlist_url,
-						success: req480p,
-						error: req480p
-					});
-					
-					var video_360p_dash_playlist_url_no_clipe = video_m3u8_array[3].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
-					var video_360p_dash_playlist_url = video_360p_dash_playlist_url_no_clipe.replace(video_360p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_360p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
-					var req360p = (result,status,xhr) => {
-						var params_download_link_360p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-						var video_360p_mp4_url_old = video_360p_dash_playlist_url.split("_,")[0] + "_" + video_360p_dash_playlist_url.split(",")[1] + params_download_link_360p;
-						var video_360p_mp4_url = video_360p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
-							
-						document.getElementById("360p_down_url").href = video_360p_mp4_url;
-						setFileSize(video_360p_mp4_url, "360p_down_size");
-							
-						console.log("360p_mp4: " + video_360p_mp4_url);
-					};
-					
-					$.ajax({
-						async: true,
-						type: "GET",
-						url: video_360p_dash_playlist_url,
-						success: req360p,
-						error: req360p
-					});
-					
-					var video_240p_dash_playlist_url_no_clipe = video_m3u8_array[4].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
-					var video_240p_dash_playlist_url = video_240p_dash_playlist_url_no_clipe.replace(video_240p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_240p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
-					var req240p = (result,status,xhr) => {
-						var params_download_link_240p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-						var video_240p_mp4_url_old = video_240p_dash_playlist_url.split("_,")[0] + "_" + video_240p_dash_playlist_url.split(",")[1] + params_download_link_240p;
-						var video_240p_mp4_url = video_240p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
-							
-						document.getElementById("240p_down_url").href = video_240p_mp4_url;
-						setFileSize(video_240p_mp4_url, "240p_down_size");
-							
-						console.log("240p_mp4: " + video_240p_mp4_url);
-					};
-					
-					$.ajax({
-						async: true,
-						type: "GET",
-						url: video_240p_dash_playlist_url,
-						success: req240p,
-						error: req240p
-					});
-					
-					//Aqui oque vai fazer depois de pegar os links mp4
-					
+
+					function linkDownload(id) {
+						var video_dash_playlist_url_no_clipe = video_m3u8_array[id].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
+						var video_dash_playlist_url = video_dash_playlist_url_no_clipe.replace(video_dash_playlist_url_no_clipe.split("_")[0] + "_", video_dash_playlist_url_no_clipe.split("_")[0] + "_,");
+						function cb(result, status, xhr) {
+							var params_download_link = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
+							if (!params_download_link)
+								return linkDownload(id);
+							var video_mp4_url_old = video_dash_playlist_url.split("_,")[0] + "_" + video_dash_playlist_url.split(",")[1] + params_download_link;
+							var video_mp4_url = video_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
+							document.getElementById(r[id]+"_down_url").href = video_mp4_url;
+							setFileSize(video_mp4_url, r[id]+"_down_size");
+						};
+
+						$.ajax({
+							async: true,
+							type: "GET",
+							url: video_dash_playlist_url,
+							success: cb
+						});
+					}
+
+					for (id in r)
+						linkDownload(id);
 				}
 			}
-			
+
 			playerInstance.addButton(button_iconPath, button_tooltipText, download_ButtonClickAction, buttonId);
 
 			//Funções para o player
