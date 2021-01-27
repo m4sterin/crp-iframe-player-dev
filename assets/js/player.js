@@ -164,10 +164,10 @@ window.addEventListener("message", function (e) {
 
 				//function que pega algo dentro dentro do html.
 				function pegaString(str, first_character, last_character) {
-					if (str.match(first_character + "(.*)" + last_character) == null) {
+					if (str.match(first_character + "(.*?)" + last_character) == null) {
 						return null;
 					} else {
-						new_str = str.match(first_character + "(.*)" + last_character)[1].trim()
+						new_str = str.match(first_character + "(.*?)" + last_character)[1].trim()
 						return (new_str)
 					}
 				}
@@ -339,4 +339,5 @@ window.addEventListener("message", function (e) {
 			}
 		});
 	}
+	retry();
 });
