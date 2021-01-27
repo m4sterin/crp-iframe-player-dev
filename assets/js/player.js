@@ -54,14 +54,15 @@ window.addEventListener("message", function (e) {
 		video_stream_url = URL.createObjectURL(blob) + "#.m3u8";
 	}
 
-	//Pega varias informações pela pagina rss.
+	// Pega varias informações pela pagina rss.
 	let crproxy = 'https://cors-anywhere.herokuapp.com/';
+	let allorigins = 'https://api.allorigins.win/raw?url=';
 
 	console.log('[CR Premium] Linkando stream...')
 	$.ajax({
 		async: true,
 		type: "GET",
-		url: crproxy + series_rss,
+		url: allorigins + series_rss,
 		contentType: "text/xml; charset=utf-8",
 		complete: response => {
 			//Pega o titulo da serie
@@ -193,9 +194,15 @@ window.addEventListener("message", function (e) {
 			})
 
 			function startPlayer() {
-				sources = [];
+				sources = [
+					{ file: u[id], label: r[id] + '<sup><sup>HD</sup></sup>' },
+					{ file: u[id], label: r[id] + '<sup><sup>HD</sup></sup>' },
+					{ file: u[id], label: r[id] },
+					{ file: u[id], label: r[id] },
+					{ file: u[id], label: r[id] }
+				];
 				for (id of [1, 0, 2, 3, 4]) 
-					sources.push({ file: u[id], label: r[id] + (id<2 ? '<sup><sup>HD</sup></sup>' : '') });
+					sources.push();
 
 				// Inicia o player
 				var playerInstance = jwplayer("player_div")
@@ -281,12 +288,6 @@ window.addEventListener("message", function (e) {
 						document.getElementsByTagName("video")[0].currentTime = localStorage.getItem(video_id);
 					}
 					document.body.querySelector(".loading_container").style.display = "none";
-
-					//Fica salvando o tempo do video a cada 5 segundos.
-					setInterval(() => {
-						if (jwplayer().getState() == "playing")
-							localStorage.setItem(video_id, jwplayer().getPosition());
-					}, 5000);
 				});
 				//Mostra uma tela de erro caso a legenda pedida não exista.
 				jwplayer().on('error', e => {
@@ -302,6 +303,12 @@ window.addEventListener("message", function (e) {
 						jwplayer().play();
 					}
 				});
+				
+				//Fica salvando o tempo do video a cada 5 segundos.
+				setInterval(() => {
+					if (jwplayer().getState() == "playing")
+						localStorage.setItem(video_id, jwplayer().getPosition());
+				}, 5000);
 			}
 		}
 	});
