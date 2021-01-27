@@ -57,6 +57,7 @@ window.addEventListener("message", function (e) {
 			type: "text/plain; charset=utf-8"
 		});
 		video_stream_url = URL.createObjectURL(blob) + "#.m3u8";
+		console.log('contentAt', video_m3u8_array);
 	}
 
 	//Pega varias informações pela pagina rss.
@@ -174,7 +175,7 @@ window.addEventListener("message", function (e) {
 						fileSize = http.getResponseHeader('content-length');
 
 						//Se o fileSize for igual a null é porque precisa de proxy pra pegar o header
-						if(!fileSize) {
+						if(!fileSize && !needs_proxy) {
 							setFileSize(url, element_id, true);
 						}else{
 							var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -233,7 +234,7 @@ window.addEventListener("message", function (e) {
 						async: true,
 						type: "GET",
 						url: video_dash_playlist_url_old,
-						success: function (result,status,xhr) {
+						success: (result,status,xhr) => {
 							var params_download_link = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
 							var video_1080p_code = video_dash_playlist_url.split(",")[2];
 							var video_720p_code = video_dash_playlist_url.split(",")[1];
@@ -271,97 +272,107 @@ window.addEventListener("message", function (e) {
 				if(is_ep_premium_only == true) {
 					var video_1080p_dash_playlist_url_no_clipe = video_m3u8_array[1].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
 					var video_1080p_dash_playlist_url = video_1080p_dash_playlist_url_no_clipe.replace(video_1080p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_1080p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
+					var req1080p = (result,status,xhr) => {
+						var params_download_link_1080p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
+						var video_1080p_mp4_url_old = video_1080p_dash_playlist_url.split("_,")[0] + "_" + video_1080p_dash_playlist_url.split(",")[1] + params_download_link_1080p;
+						var video_1080p_mp4_url = video_1080p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
+							
+						document.getElementById("1080p_down_url").href = video_1080p_mp4_url;
+						setFileSize(video_1080p_mp4_url, "1080p_down_size");
+							
+						console.log("1080p_mp4: " + video_1080p_mp4_url);
+					};
 					
 					$.ajax({
 						async: true,
 						type: "GET",
 						url: video_1080p_dash_playlist_url,
-						success: function (result,status,xhr) {
-							var params_download_link_1080p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-							var video_1080p_mp4_url_old = video_1080p_dash_playlist_url.split("_,")[0] + "_" + video_1080p_dash_playlist_url.split(",")[1] + params_download_link_1080p;
-							var video_1080p_mp4_url = video_1080p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
-							
-							document.getElementById("1080p_down_url").href = video_1080p_mp4_url;
-							setFileSize(video_1080p_mp4_url, "1080p_down_size");
-							
-							console.log("1080p_mp4: " + video_1080p_mp4_url);
-						}
+						success: req1080p,
+						error: req1080p
 					});
 					
 					var video_720p_dash_playlist_url_no_clipe = video_m3u8_array[0].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
 					var video_720p_dash_playlist_url = video_720p_dash_playlist_url_no_clipe.replace(video_720p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_720p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
+					var req720p = (result,status,xhr) => {
+						var params_download_link_720p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
+						var video_720p_mp4_url_old = video_720p_dash_playlist_url.split("_,")[0] + "_" + video_720p_dash_playlist_url.split(",")[1] + params_download_link_720p;
+						var video_720p_mp4_url = video_720p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
+							
+						document.getElementById("720p_down_url").href = video_720p_mp4_url;
+						setFileSize(video_720p_mp4_url, "720p_down_size");
+							
+						console.log("720p_mp4: " + video_720p_mp4_url);
+					};
 					
 					$.ajax({
 						async: true,
 						type: "GET",
 						url: video_720p_dash_playlist_url,
-						success: function (result,status,xhr) {
-							var params_download_link_720p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-							var video_720p_mp4_url_old = video_720p_dash_playlist_url.split("_,")[0] + "_" + video_720p_dash_playlist_url.split(",")[1] + params_download_link_720p;
-							var video_720p_mp4_url = video_720p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
-							
-							document.getElementById("720p_down_url").href = video_720p_mp4_url;
-							setFileSize(video_720p_mp4_url, "720p_down_size");
-							
-							console.log("720p_mp4: " + video_720p_mp4_url);
-						}
+						success: req720p,
+						error: req720p
 					});
 					
 					var video_480p_dash_playlist_url_no_clipe = video_m3u8_array[2].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
 					var video_480p_dash_playlist_url = video_480p_dash_playlist_url_no_clipe.replace(video_480p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_480p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
+					var req480p = (result,status,xhr) => {
+						var params_download_link_480p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
+						var video_480p_mp4_url_old = video_480p_dash_playlist_url.split("_,")[0] + "_" + video_480p_dash_playlist_url.split(",")[1] + params_download_link_480p;
+						var video_480p_mp4_url = video_480p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
+							
+						document.getElementById("480p_down_url").href = video_480p_mp4_url;
+						setFileSize(video_480p_mp4_url, "480p_down_size");
+							
+						console.log("480p_mp4: " + video_480p_mp4_url);
+					}
 					
 					$.ajax({
 						async: true,
 						type: "GET",
 						url: video_480p_dash_playlist_url,
-						success: function (result,status,xhr) {
-							var params_download_link_480p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-							var video_480p_mp4_url_old = video_480p_dash_playlist_url.split("_,")[0] + "_" + video_480p_dash_playlist_url.split(",")[1] + params_download_link_480p;
-							var video_480p_mp4_url = video_480p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
-							
-							document.getElementById("480p_down_url").href = video_480p_mp4_url;
-							setFileSize(video_480p_mp4_url, "480p_down_size");
-							
-							console.log("480p_mp4: " + video_480p_mp4_url);
-						}
+						success: req480p,
+						error: req480p
 					});
 					
 					var video_360p_dash_playlist_url_no_clipe = video_m3u8_array[3].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
 					var video_360p_dash_playlist_url = video_360p_dash_playlist_url_no_clipe.replace(video_360p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_360p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
+					var req360p = (result,status,xhr) => {
+						var params_download_link_360p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
+						var video_360p_mp4_url_old = video_360p_dash_playlist_url.split("_,")[0] + "_" + video_360p_dash_playlist_url.split(",")[1] + params_download_link_360p;
+						var video_360p_mp4_url = video_360p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
+							
+						document.getElementById("360p_down_url").href = video_360p_mp4_url;
+						setFileSize(video_360p_mp4_url, "360p_down_size");
+							
+						console.log("360p_mp4: " + video_360p_mp4_url);
+					};
 					
 					$.ajax({
 						async: true,
 						type: "GET",
 						url: video_360p_dash_playlist_url,
-						success: function (result,status,xhr) {
-							var params_download_link_360p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-							var video_360p_mp4_url_old = video_360p_dash_playlist_url.split("_,")[0] + "_" + video_360p_dash_playlist_url.split(",")[1] + params_download_link_360p;
-							var video_360p_mp4_url = video_360p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
-							
-							document.getElementById("360p_down_url").href = video_360p_mp4_url;
-							setFileSize(video_360p_mp4_url, "360p_down_size");
-							
-							console.log("360p_mp4: " + video_360p_mp4_url);
-						}
+						success: req360p,
+						error: req360p
 					});
 					
 					var video_240p_dash_playlist_url_no_clipe = video_m3u8_array[4].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
 					var video_240p_dash_playlist_url = video_240p_dash_playlist_url_no_clipe.replace(video_240p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_240p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
+					var req240p = (result,status,xhr) => {
+						var params_download_link_240p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
+						var video_240p_mp4_url_old = video_240p_dash_playlist_url.split("_,")[0] + "_" + video_240p_dash_playlist_url.split(",")[1] + params_download_link_240p;
+						var video_240p_mp4_url = video_240p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
+							
+						document.getElementById("240p_down_url").href = video_240p_mp4_url;
+						setFileSize(video_240p_mp4_url, "240p_down_size");
+							
+						console.log("240p_mp4: " + video_240p_mp4_url);
+					};
 					
 					$.ajax({
 						async: true,
 						type: "GET",
 						url: video_240p_dash_playlist_url,
-						success: function (result,status,xhr) {
-							var params_download_link_240p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-							var video_240p_mp4_url_old = video_240p_dash_playlist_url.split("_,")[0] + "_" + video_240p_dash_playlist_url.split(",")[1] + params_download_link_240p;
-							var video_240p_mp4_url = video_240p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
-							
-							document.getElementById("240p_down_url").href = video_240p_mp4_url;
-							setFileSize(video_240p_mp4_url, "240p_down_size");
-							
-							console.log("240p_mp4: " + video_240p_mp4_url);
-						}
+						success: req240p,
+						error: req240p
 					});
 					
 					//Aqui oque vai fazer depois de pegar os links mp4
