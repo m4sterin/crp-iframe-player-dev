@@ -118,6 +118,7 @@ window.addEventListener("message", function (e) {
 			}
 
 			//Inicia o player
+			console.log('starting from', video_stream_url);
 			var playerInstance = jwplayer("player_div")
 			playerInstance.setup({
 				"title": episode_title,
