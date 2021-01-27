@@ -270,10 +270,13 @@ window.addEventListener("message", function (e) {
 				
 				//Se o episodio for apenas para usuarios premium
 				if(is_ep_premium_only == true) {
+					console.log('video_m3u8_array', video_m3u8_array);
 					var video_1080p_dash_playlist_url_no_clipe = video_m3u8_array[1].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
 					var video_1080p_dash_playlist_url = video_1080p_dash_playlist_url_no_clipe.replace(video_1080p_dash_playlist_url_no_clipe.split("_")[0] + "_", video_1080p_dash_playlist_url_no_clipe.split("_")[0] + "_,");
 					var req1080p = (result,status,xhr) => {
 						var params_download_link_1080p = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
+						console.log('xhr', xhr.responseText);
+						console.log('params', params_download_link_1080p);
 						var video_1080p_mp4_url_old = video_1080p_dash_playlist_url.split("_,")[0] + "_" + video_1080p_dash_playlist_url.split(",")[1] + params_download_link_1080p;
 						var video_1080p_mp4_url = video_1080p_mp4_url_old.replace("dl.v.vrv.co", "v.vrv.co");
 							
