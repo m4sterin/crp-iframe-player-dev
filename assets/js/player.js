@@ -61,10 +61,11 @@ window.addEventListener("message", function (e) {
 
 	//Pega varias informações pela pagina rss.
 	console.log('series_rss', series_rss);
+	let crproxy = 'https://crp-proxy.herokuapp.com/';
 	$.ajax({
 		async: true,
 		type: "GET",
-		url: "https://crp-proxy.herokuapp.com/" + series_rss,
+		url: crproxy + series_rss,
 		contentType: "text/xml; charset=utf-8",
 		complete: function (response) {
 
@@ -157,14 +158,13 @@ window.addEventListener("message", function (e) {
 			
 			//function que pega o tamanho de um arquivo pela url
 			function setFileSize(url, element_id, needs_proxy) {
-				var proxy = "https://crp-proxy.herokuapp.com/";
 				var fileSize = "";
 				var http = (window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP"));
 
 				if(needs_proxy == true){
-					final_url = proxy + url;
+					final_url = crproxy + url;
 					console.log('setFileSize proxy', final_url);
-				}else{
+				} else {
 					final_url = url;
 				}
 
@@ -174,7 +174,7 @@ window.addEventListener("message", function (e) {
 						fileSize = http.getResponseHeader('content-length');
 
 						//Se o fileSize for igual a null é porque precisa de proxy pra pegar o header
-						if(fileSize == null) {
+						if(!fileSize) {
 							setFileSize(url, element_id, true);
 						}else{
 							var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
@@ -198,7 +198,6 @@ window.addEventListener("message", function (e) {
 			
 			//function ao clicar no botao de baixar
 			function download_ButtonClickAction() {
-				
 				//Se estiver no mobile, muda um pouco o design do menu
 				if (jwplayer().getEnvironment().OS.mobile == true) {
 					document.querySelectorAll(".modal")[0].style.height = "170px";
@@ -285,7 +284,7 @@ window.addEventListener("message", function (e) {
 							document.getElementById("1080p_down_url").href = video_1080p_mp4_url;
 							setFileSize(video_1080p_mp4_url, "1080p_down_size");
 							
-							//console.log("1080p_mp4: " + video_1080p_mp4_url);
+							console.log("1080p_mp4: " + video_1080p_mp4_url);
 						}
 					});
 					
@@ -304,7 +303,7 @@ window.addEventListener("message", function (e) {
 							document.getElementById("720p_down_url").href = video_720p_mp4_url;
 							setFileSize(video_720p_mp4_url, "720p_down_size");
 							
-							//console.log("720p_mp4: " + video_720p_mp4_url);
+							console.log("720p_mp4: " + video_720p_mp4_url);
 						}
 					});
 					
@@ -323,7 +322,7 @@ window.addEventListener("message", function (e) {
 							document.getElementById("480p_down_url").href = video_480p_mp4_url;
 							setFileSize(video_480p_mp4_url, "480p_down_size");
 							
-							//console.log("480p_mp4: " + video_480p_mp4_url);
+							console.log("480p_mp4: " + video_480p_mp4_url);
 						}
 					});
 					
@@ -342,7 +341,7 @@ window.addEventListener("message", function (e) {
 							document.getElementById("360p_down_url").href = video_360p_mp4_url;
 							setFileSize(video_360p_mp4_url, "360p_down_size");
 							
-							//console.log("360p_mp4: " + video_360p_mp4_url);
+							console.log("360p_mp4: " + video_360p_mp4_url);
 						}
 					});
 					
@@ -361,7 +360,7 @@ window.addEventListener("message", function (e) {
 							document.getElementById("240p_down_url").href = video_240p_mp4_url;
 							setFileSize(video_240p_mp4_url, "240p_down_size");
 							
-							//console.log("240p_mp4: " + video_240p_mp4_url);
+							console.log("240p_mp4: " + video_240p_mp4_url);
 						}
 					});
 					
