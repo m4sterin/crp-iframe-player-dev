@@ -64,7 +64,7 @@ window.addEventListener("message", function (e) {
 	$.ajax({
 		async: true,
 		type: "GET",
-		url: "https://api.allorigins.win/raw?url=" + series_rss,
+		url: "https://crp-proxy.herokuapp.com/" + series_rss,
 		contentType: "text/xml; charset=utf-8",
 		complete: function (response) {
 
