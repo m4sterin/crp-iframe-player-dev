@@ -65,7 +65,10 @@ window.addEventListener("message", function (e) {
 		type: "GET",
 		url: "https://api.allorigins.win/raw?url=" + series_rss,
 		contentType: "text/xml; charset=utf-8",
-		complete: function (response) {
+		error: (a, b, xhr) => {
+			console.log('ERROR', xhr)
+		},
+		complete: response => {
 
 			//Pega o titulo da serie
 			series_title = $(response.responseXML).find("image").find("title").text();
@@ -137,10 +140,10 @@ window.addEventListener("message", function (e) {
 			
 			//function que pega algo dentro dentro do html.
 			function pegaString(str, first_character, last_character) {
-				if(str.match(first_character + "(.*)" + last_character) == null){
+				if(str.match(first_character + "(.*?)" + last_character) == null){
 					return null;
 				}else{
-				    new_str = str.match(first_character + "(.*)" + last_character)[1].trim()
+				    new_str = str.match(first_character + "(.*?)" + last_character)[1].trim()
 				    return(new_str)
 			    }
 			}
