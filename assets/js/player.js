@@ -85,7 +85,7 @@ window.addEventListener("message", function (e) {
 			url: crproxy + series_rss,
 			contentType: "text/xml; charset=utf-8",
 			error: (a, b, xhr) => {
-				console.log('ERROR', xhr);
+				console.log('Proxy Error', xhr);
 			},
 			complete: response => {
 
@@ -144,18 +144,13 @@ window.addEventListener("message", function (e) {
 				playerInstance.setup({
 					"title": episode_title,
 					"description": video_config_media['metadata']['title'],
-					"file": video_stream_url,
+					//"file": video_stream_url,
 					"image": video_config_media['thumbnail']['url'],
 					"width": "100%",
 					"height": "100%",
 					"autostart": false,
 					"displayPlaybackLabel": true,
 					"primary": "html5"
-				});
-
-				jwplayer().setControls(true);
-				jwplayer().setConfig({
-					repeat: false
 				});
 
 				//Variaveis para o botao de baixar.
@@ -192,7 +187,7 @@ window.addEventListener("message", function (e) {
 						final_url = url;
 					}
 
-					http.onreadystatechange = function () {
+					http.onreadystatechange = () => {
 						if (http.readyState == 4 && http.status == 200) {
 							//Pega o tamanho em bytes do arquivo de video
 							fileSize = http.getResponseHeader('content-length');
@@ -201,6 +196,10 @@ window.addEventListener("message", function (e) {
 							if (!fileSize && !needs_proxy) {
 								setFileSize(url, element_id, true);
 							} else {
+								playerInstance["sources"].push({
+									file: url,
+									label: element_id
+								});
 								var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
 								if (fileSize == 0) return 'n/a';
 								var i = parseInt(Math.floor(Math.log(fileSize) / Math.log(1024)));
@@ -216,20 +215,23 @@ window.addEventListener("message", function (e) {
 				}
 
 				//funcion ao clicar no botao de fechar o menu de download
-				document.querySelectorAll("button.close-modal")[0].onclick = function () {
+				document.querySelectorAll("button.close-modal")[0].onclick = () => {
 					document.querySelectorAll(".modal")[0].style.visibility = "hidden";
 				};
 
 				//function ao clicar no botao de baixar
-				function download_ButtonClickAction() {
-					//Se estiver no mobile, muda um pouco o design do menu
-					if (jwplayer().getEnvironment().OS.mobile == true) {
-						document.querySelectorAll(".modal")[0].style.height = "170px";
-						document.querySelectorAll(".modal")[0].style.overflow = "auto";
-					}
+				function download_ButtonClickAction(show) {
+					if (show) {
+						//Se estiver no mobile, muda um pouco o design do menu
+						if (jwplayer().getEnvironment().OS.mobile == true) {
+							document.querySelectorAll(".modal")[0].style.height = "170px";
+							document.querySelectorAll(".modal")[0].style.overflow = "auto";
+						}
 
-					//Mostra o menu de download
-					document.querySelectorAll(".modal")[0].style.visibility = "visible";
+						//Mostra o menu de download
+						document.querySelectorAll(".modal")[0].style.visibility = "visible";
+						return;
+					}
 
 					//Pega a url da playlist atual
 					player_current_playlist = jwplayer().getPlaylist()[0].file;
@@ -306,7 +308,7 @@ window.addEventListener("message", function (e) {
 					}
 				}
 
-				playerInstance.addButton(button_iconPath, button_tooltipText, download_ButtonClickAction, buttonId);
+				playerInstance.addButton(button_iconPath, button_tooltipText, ()=>download_ButtonClickAction(true), buttonId);
 
 				//Funções para o player
 				jwplayer().on('ready', e => {
