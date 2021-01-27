@@ -77,6 +77,7 @@ window.addEventListener("message", function (e) {
 	let crproxy = 'https://crp-proxy.herokuapp.com/';
 
 	function retry() {
+		console.log('[CR Premium] Linkando stream...')
 		$.ajax({
 			async: true,
 			type: "GET",
