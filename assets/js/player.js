@@ -194,7 +194,7 @@ window.addEventListener("message", function (e) {
 
 			function startPlayer() {
 				sources = [];
-				for (id of [0, 1, 2, 3, 4]) 
+				for (id of [1, 0, 2, 3, 4]) 
 					sources.push({ file: u[id], label: r[id] + (id<2 ? '<sup><sup>HD</sup></sup>' : '') });
 
 				// Inicia o player
