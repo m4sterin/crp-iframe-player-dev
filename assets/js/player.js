@@ -59,6 +59,7 @@ window.addEventListener("message", function (e) {
 	let allorigins = 'https://api.allorigins.win/raw?url=';
 
 	console.log('[CR Premium] Linkando stream...')
+	console.log(allorigins + series_rss);
 	$.ajax({
 		async: true,
 		type: "GET",
@@ -145,6 +146,7 @@ window.addEventListener("message", function (e) {
 						var params_download_link = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
 
 						function linkDownload(id) {
+							console.log('- Reatualizando 0')
 							var video_code = video_dash_playlist_url.split(",")[id];
 							var video_mp4_url = video_dash_playlist_url.split("_,")[0] + "_" + video_code + params_download_link;
 							u[id] = video_mp4_url;
@@ -195,14 +197,12 @@ window.addEventListener("message", function (e) {
 
 			function startPlayer() {
 				sources = [
-					{ file: u[id], label: r[id] + '<sup><sup>HD</sup></sup>' },
-					{ file: u[id], label: r[id] + '<sup><sup>HD</sup></sup>' },
-					{ file: u[id], label: r[id] },
-					{ file: u[id], label: r[id] },
-					{ file: u[id], label: r[id] }
+					{ file: u[1], label: r[1] + '<sup><sup>HD</sup></sup>' },
+					{ file: u[0], label: r[0] + '<sup><sup>HD</sup></sup>' },
+					{ file: u[2], label: r[2] },
+					{ file: u[3], label: r[3] },
+					{ file: u[4], label: r[4] }
 				];
-				for (id of [1, 0, 2, 3, 4]) 
-					sources.push();
 
 				// Inicia o player
 				var playerInstance = jwplayer("player_div")
@@ -222,39 +222,6 @@ window.addEventListener("message", function (e) {
 				var button_iconPath = "assets/icon/download_icon.svg";
 				var button_tooltipText = "Baixar Vídeo";
 				var buttonId = "download-video-button";
-
-				//function que pega o tamanho de um arquivo pela url
-				function setFileSize(url, element_id, needs_proxy) {
-					var fileSize = "";
-					var http = (window.XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP"));
-
-					if (needs_proxy == true)
-						final_url = crproxy + url;
-					else
-						final_url = url;
-
-					http.onreadystatechange = () => {
-						if (http.readyState == 4 && http.status == 200) {
-							//Pega o tamanho em bytes do arquivo de video
-							fileSize = http.getResponseHeader('content-length');
-
-							//Se o fileSize for igual a null é porque precisa de proxy pra pegar o header
-							if (!fileSize && !needs_proxy) {
-								setFileSize(url, element_id, true);
-							} else {
-								var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-								if (fileSize == 0) return 'n/a';
-								var i = parseInt(Math.floor(Math.log(fileSize) / Math.log(1024)));
-								if (i == 0) return fileSize + ' ' + sizes[i];
-
-								var return_fileSize = (fileSize / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
-								document.getElementById(element_id).innerText = return_fileSize;
-							}
-						}
-					}
-					http.open("HEAD", final_url, true);
-					http.send(null);
-				}
 
 				//funcion ao clicar no botao de fechar o menu de download
 				document.querySelectorAll("button.close-modal")[0].onclick = () => {
@@ -276,9 +243,10 @@ window.addEventListener("message", function (e) {
 
 				playerInstance.addButton(button_iconPath, button_tooltipText, () => download_ButtonClickAction(), buttonId);
 
+				// Definir URL e Tamanho na lista de download
 				for (let id in r) {
 					document.getElementById(r[id] + "_down_url").href = u[id];
-					setFileSize(u[id], r[id] + "_down_size");
+					document.getElementById(r[id] + "_down_size").innerText = s[id];
 				}
 
 				//Funções para o player
