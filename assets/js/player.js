@@ -1,5 +1,6 @@
 window.addEventListener("message", function (e) {
 	//console.log(e.currentTarget.document.referrer);
+	console.log('[CR Premium] Player encontrado!')
 
 	var video_config_media = JSON.parse(e.data.video_config_media);
 	console.log(video_config_media)
