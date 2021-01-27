@@ -1,8 +1,8 @@
 window.addEventListener("message", function (e) {
-	console.log('aaa')
 	//console.log(e.currentTarget.document.referrer);
 
 	var video_config_media = JSON.parse(e.data.video_config_media);
+	console.log(video_config_media)
 	var user_lang = e.data.lang;
 	var video_stream_url = "";
 	var video_id = video_config_media['metadata']['id'];
@@ -38,7 +38,7 @@ window.addEventListener("message", function (e) {
 			break;
 		}
 	}
-	//console.log(video_m3u8_array);
+	console.log(video_m3u8_array);
 
 	video_m3u8 = '#EXTM3U' +
 		'\n#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=4112345,RESOLUTION=1280x720,FRAME-RATE=23.974,CODECS="avc1.640028,mp4a.40.2"' +
@@ -52,13 +52,12 @@ window.addEventListener("message", function (e) {
 		'\n#EXT-X-STREAM-INF:PROGRAM-ID=1,BANDWIDTH=559942,RESOLUTION=428x240,FRAME-RATE=23.974,CODECS="avc1.42c015,mp4a.40.2"' +
 		'\n' + video_m3u8_array[4];
 
+	console.log(video_m3u8)
 	if (video_stream_url == "") {
-		console.log(video_m3u8);
 		var blob = new Blob([video_m3u8], {
 			type: "text/plain; charset=utf-8"
 		});
 		video_stream_url = URL.createObjectURL(blob) + "#.m3u8";
-		console.log('contentAt', video_m3u8_array);
 	}
 
 	//Pega varias informações pela pagina rss.
@@ -72,8 +71,6 @@ window.addEventListener("message", function (e) {
 		complete: function (response) {
 
 			//Pega o titulo da serie
-			console.log(crproxy + series_rss);
-			console.log(response)
 			series_title = $(response.responseXML).find("image").find("title").text();
 
 			//Pega o numero e titulo do episodio
@@ -123,7 +120,6 @@ window.addEventListener("message", function (e) {
 			}
 
 			//Inicia o player
-			console.log('starting from', video_stream_url);
 			var playerInstance = jwplayer("player_div")
 			playerInstance.setup({
 				"title": episode_title,
@@ -167,7 +163,6 @@ window.addEventListener("message", function (e) {
 
 				if (needs_proxy == true) {
 					final_url = crproxy + url;
-					console.log('setFileSize proxy', final_url);
 				} else {
 					final_url = url;
 				}
@@ -224,14 +219,12 @@ window.addEventListener("message", function (e) {
 				}
 
 				//console.log("is_ep_premium_only: " + is_ep_premium_only);
+				const r = { 0: '720p', 1: '1080p', 2: '480p', 3: '360p', 4: '240p' }
 
 				//Se o episodio não for apenas para premium pega as urls de um jeito mais facil
 				if (is_ep_premium_only == false) {
 					video_dash_playlist_url_old = player_current_playlist.replace("master.m3u8", "manifest.mpd").replace(player_current_playlist.split("/")[2], "dl.v.vrv.co").replace("evs1", "evs");
 					video_dash_playlist_url = player_current_playlist.replace(player_current_playlist.split("/")[2], "v.vrv.co").replace("evs1", "evs");
-
-					//console.log("Dash Playlist Old: " + video_dash_playlist_url_old);
-					//console.log("Dash Playlist: " + video_dash_playlist_url);
 
 					$.ajax({
 						async: true,
@@ -239,42 +232,22 @@ window.addEventListener("message", function (e) {
 						url: video_dash_playlist_url_old,
 						success: (result, status, xhr) => {
 							var params_download_link = htmlDecode(pegaString(xhr.responseText, '.m4s?', '"'));
-							var video_1080p_code = video_dash_playlist_url.split(",")[2];
-							var video_720p_code = video_dash_playlist_url.split(",")[1];
-							var video_480p_code = video_dash_playlist_url.split(",")[3];
-							var video_360p_code = video_dash_playlist_url.split(",")[4];
-							var video_240p_code = video_dash_playlist_url.split(",")[5];
 
-							var video_1080p_mp4_url = video_dash_playlist_url.split("_,")[0] + "_" + video_1080p_code + params_download_link;
-							var video_720p_mp4_url = video_dash_playlist_url.split("_,")[0] + "_" + video_720p_code + params_download_link;
-							var video_480p_mp4_url = video_dash_playlist_url.split("_,")[0] + "_" + video_480p_code + params_download_link;
-							var video_360p_mp4_url = video_dash_playlist_url.split("_,")[0] + "_" + video_360p_code + params_download_link;
-							var video_240p_mp4_url = video_dash_playlist_url.split("_,")[0] + "_" + video_240p_code + params_download_link;
+							function linkDownload(id) {
+								var video_code = video_dash_playlist_url.split(",")[id];
+								var video_mp4_url = video_dash_playlist_url.split("_,")[0] + "_" + video_code + params_download_link;
+								document.getElementById(r[id]+"_down_url").href = video_mp4_url;
+								setFileSize(video_mp4_url, r[id]+"_down_size");
+							}
 
-							document.getElementById("1080p_down_url").href = video_1080p_mp4_url;
-							setFileSize(video_1080p_mp4_url, "1080p_down_size");
-							document.getElementById("720p_down_url").href = video_720p_mp4_url;
-							setFileSize(video_720p_mp4_url, "720p_down_size");
-							document.getElementById("480p_down_url").href = video_480p_mp4_url;
-							setFileSize(video_480p_mp4_url, "480p_down_size");
-							document.getElementById("360p_down_url").href = video_360p_mp4_url;
-							setFileSize(video_360p_mp4_url, "360p_down_size");
-							document.getElementById("240p_down_url").href = video_240p_mp4_url;
-							setFileSize(video_240p_mp4_url, "240p_down_size");
+							for (id in r)
+								linkDownload(id);
 						}
 					});
 				}
 
 				//Se o episodio for apenas para usuarios premium
 				if (is_ep_premium_only == true) {
-					const r = {
-						0: '720p',
-						1: '1080p',
-						2: '480p',
-						3: '360p',
-						4: '240p'
-					}
-
 					function linkDownload(id) {
 						var video_dash_playlist_url_no_clipe = video_m3u8_array[id].replace("/clipFrom/0000/clipTo/" + video_config_media['metadata']['duration'] + "/index.m3u8", ",.urlset/manifest.mpd");
 						var video_dash_playlist_url = video_dash_playlist_url_no_clipe.replace(video_dash_playlist_url_no_clipe.split("_")[0] + "_", video_dash_playlist_url_no_clipe.split("_")[0] + "_,");
@@ -304,15 +277,21 @@ window.addEventListener("message", function (e) {
 			playerInstance.addButton(button_iconPath, button_tooltipText, download_ButtonClickAction, buttonId);
 
 			//Funções para o player
-			jwplayer().on('ready', function (e) {
+			jwplayer().on('ready', e => {
 				//Seta o tempo do video pro salvo no localStorage		
 				if (localStorage.getItem(video_id) != null) {
 					document.getElementsByTagName("video")[0].currentTime = localStorage.getItem(video_id);
 				}
 				document.body.querySelector(".loading_container").style.display = "none";
+
+				//Fica salvando o tempo do video a cada 5 segundos.
+				setInterval(() => {
+					if (jwplayer().getState() == "playing")
+						localStorage.setItem(video_id, jwplayer().getPosition());
+				}, 5000);
 			});
 			//Mostra uma tela de erro caso a legenda pedida não exista.
-			jwplayer().on('error', function (e) {
+			jwplayer().on('error', e => {
 				console.log(e)
 				if (e.code == 232011) {
 					jwplayer().load({
@@ -325,12 +304,6 @@ window.addEventListener("message", function (e) {
 					jwplayer().play();
 				}
 			});
-			//Fica salvando o tempo do video a cada 5 segundos.
-			const save_player_time_interval = setInterval(function () {
-				if (jwplayer().getState() == "playing") {
-					localStorage.setItem(video_id, jwplayer().getPosition());
-				}
-			}, 5000);
 		}
 	});
 });
