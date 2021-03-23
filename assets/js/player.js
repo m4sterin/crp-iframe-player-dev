@@ -29,6 +29,8 @@ window.addEventListener("message", function (e) {
 				rows_number++;
 			}
 		if (video_config_media['streams'][i].format == 'adaptive_hls' && video_config_media['streams'][i].hardsub_lang == user_lang) {
+			window.vcm = video_config_media;
+			console.log(i);
 			video_stream_url = video_config_media['streams'][i].url.replace("pl.crunchyroll.com", "dl.v.vrv.co");
 			break;
 		}
