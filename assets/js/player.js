@@ -1,3 +1,4 @@
+window.va=2;
 window.addEventListener("message", function (e) {
 	//console.log(e.currentTarget.document.referrer);
 	console.log('[CR Premium] Player encontrado!')
@@ -22,7 +23,11 @@ window.addEventListener("message", function (e) {
 	else
 		var series_rss = "https://www.crunchyroll.com/" + series_url.split("/")[4] + ".rss";
 
-	window.vcm = video_config_media;
+	console.log('def');
+	window.vb=3;
+	window.va = video_config_media;
+	window.vev = e;
+	
 	for (var i = 0; i < video_config_media['streams'].length; i++) {
 		if (video_config_media['streams'][i].format == 'trailer_hls' && video_config_media['streams'][i].hardsub_lang == user_lang)
 			if (rows_number <= 4) {
