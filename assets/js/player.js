@@ -27,6 +27,7 @@ window.addEventListener("message", function (e) {
 	window.vb=3;
 	window.va = video_config_media;
 	window.vev = e;
+	debugger;
 	
 	for (var i = 0; i < video_config_media['streams'].length; i++) {
 		if (video_config_media['streams'][i].format == 'trailer_hls' && video_config_media['streams'][i].hardsub_lang == user_lang)
