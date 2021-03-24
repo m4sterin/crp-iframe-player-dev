@@ -23,7 +23,7 @@ window.addEventListener("message", function (e) {
 	else
 		var series_rss = "https://www.crunchyroll.com/" + series_url.split("/")[4] + ".rss";
 
-	console.log('def');
+	console.log('aaaa');
 	window.vb=3;
 	window.va = video_config_media;
 	window.vev = e;
